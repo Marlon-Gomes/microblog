@@ -7,8 +7,10 @@ Created on Sun Jan 10 18:53:34 2021
 """
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
+    TextAreaField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
+    Length
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -35,3 +37,10 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email = email.data).first()
         if user is not None:
             raise ValidationError('Email already in use.')
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators = [DataRequired()])
+    about_me = TextAreaField('About_me',
+                             validators = [Length(min = 0, max = 140)]
+                             )
+    submit = SubmitField('Submit')
