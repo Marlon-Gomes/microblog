@@ -9,6 +9,7 @@ from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 # The line below creates an instance,'app', of class Flask, using the predefined
 #__name__ variable, which refers to the name of the module in which it is used.
@@ -17,9 +18,11 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # The lines below creates a database instance, 'db', and a database migration
-# instance, 'migrate'.
+# instance, 'migrate', and a login manager instance, 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
+login = LoginManager(app)
+login.login_view = 'login'
 
 # We import routes at the end bottom to avoid circular import. It needs to import
 # the app variable defined in this script.
