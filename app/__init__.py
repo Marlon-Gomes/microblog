@@ -5,6 +5,7 @@ Created on Sun Jan 10 17:00:50 2021
 
 @author: mgomes
 """
+import os
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -38,7 +39,7 @@ if not app.debug:
         if app.config['MAIL_USE_TLS']:
             secure = ()
         mail_handler = SMTPHandler(
-            mailhost = (app.config['MAIL_SERVER'],app.config['MAIL_PORT'])
+            mailhost = (app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
             fromaddr = 'no-reply' + app.config['MAIL_SERVER'],
             toaddr = app.config['ADMINS'],
             subject = 'Microblog Failure',
@@ -51,7 +52,7 @@ if not app.debug:
     if not os.path.exists('logs'):
         os.mkdir('logs')
     file_hander = RotatingFileHandler(
-        'logs/microblog.log', 
+        'logs/microblog.log',
         maxBytes = 10240,
         backupCount = 10)
     file_hander.setFormatter(
