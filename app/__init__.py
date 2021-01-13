@@ -5,15 +5,18 @@ Created on Sun Jan 10 17:00:50 2021
 
 @author: mgomes
 """
+# Imports from standard libraries
 import os
+import logging # Log errors
+from logging.handlers import SMTPHandler, RotatingFileHandler
+# Imports from downloaded libraries
 from flask import Flask
-from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-# Log errors by mail
-import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from flask_mail import Mail
+# Imports from local modules
+from config import Config
 
 # The line below creates an instance,'app', of class Flask, using the predefined
 #__name__ variable, which refers to the name of the module in which it is used.
@@ -27,6 +30,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 login = LoginManager(app)
 login.login_view = 'login'
+mail = Mail(app)
 
 # Error logging
 if not app.debug:
@@ -40,11 +44,9 @@ if not app.debug:
             secure = ()
         mail_handler = SMTPHandler(
             mailhost = (app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-            fromaddr = 'no-reply' + app.config['MAIL_SERVER'],
-            toaddr = app.config['ADMINS'],
-            subject = 'Microblog Failure',
-            credentials = auth,
-            secure = secure)
+            fromaddr = 'no-reply@' + app.config['MAIL_SERVER'],
+            toaddrs = app.config['ADMINS'], subject = 'Microblog Failure',
+            credentials = auth, secure = secure)
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
 

@@ -1,4 +1,6 @@
+# Imports from downloaded libraries
 from flask import render_template
+#Imports from local modules
 from app import app, db
 
 @app.errorhandler(404)

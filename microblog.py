@@ -5,7 +5,7 @@ Created on Sun Jan 10 17:17:58 2021
 
 @author: mgomes
 """
-
+# Imports from local modules
 from app import app, db
 from app.models import User, Post
 
