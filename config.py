@@ -5,8 +5,9 @@ Created on Sun Jan 10 18:37:42 2021
 
 @author: mgomes
 """
-
+# Imports from standard libraries
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):

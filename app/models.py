@@ -5,11 +5,16 @@ Created on Sun Jan 10 20:23:15 2021
 
 @author: mgomes
 """
+# Imports from standard libraries
 from datetime import datetime
-from app import db, login
+from time import time
+from hashlib import md5
+# Imports from downloaded libraries
+import jwt
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from hashlib import md5
+# Import from local modules
+from app import app, db, login
 
 # Create a followers association table. This is an auxilliary table,
 # containing no data other than the foreign keys, and it does not need to
@@ -51,18 +56,33 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
     def avatar(self,size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         # for other options offered by Gravatar, check the documentation
         # https://gravatar.com/site/implement/images
         return 'https://www.gravatar.com/avatar/{}?id=identicon&s={}'.format(
             digest,size)
+
+    # Password-related functions
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_reset_password_token(self, expires_in = 600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try: # to decode
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                algorithms = ['HS256'])['reset_password']
+        except: # if invalid or expired
+            return
+        return User.query.get(id)
 
     # User interactions
     def follow(self, user):

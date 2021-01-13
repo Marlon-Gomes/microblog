@@ -1,6 +1,8 @@
+# Imports from standard libraries
 from datetime import datetime, timedelta
 from random import randint
 import unittest
+# Imports from local modules
 from app import app, db
 from app.models import User, Post
 
