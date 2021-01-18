@@ -10,13 +10,14 @@ import os
 import logging # Log errors
 from logging.handlers import SMTPHandler, RotatingFileHandler
 # Imports from downloaded libraries
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_babel import Babel, lazy_gettext as _l
 # Imports from local modules
 from config import Config
 
@@ -32,9 +33,12 @@ db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 login = LoginManager(app)
 login.login_view = 'login'
+# Translate login to user's browser language
+login.login_message = _l('Please login to view this page.')
 mail = Mail(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+babel = Babel(app)
 
 # Error logging
 if not app.debug:
@@ -70,6 +74,10 @@ if not app.debug:
     app.logger.addHandler(file_hander)
     app.logger.setLevel(logging.INFO)
     app.logger.info('Microblog startup')
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 # We import 'routes', 'models', 'errors' at the end bottom to avoid circular
 # import as they need to import 'app', 'db', 'login' defined on this script.
