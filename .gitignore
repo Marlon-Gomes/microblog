@@ -28,7 +28,7 @@ pip-log.txt
 nosetests.xml
 
 # Translations
-.pot
+*.pot
 *.mo
 
 # Mr Developer
