@@ -1,20 +1,29 @@
 # Imports from standard libraries
 from datetime import datetime, timedelta
-from random import randint
 import unittest
 # Imports from local modules
-from app import app, db
+from app import create_app, db
 from app.models import User, Post
+from config import Config
+
+class TestConfig(Config):
+    TESTING = True
+    # Using an in-memory database for testing, not the development db
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 class UserModelCase(unittest.TestCase):
     def setUp(self):
-        # Using an in-memory database for testing, not the development db
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        self.app = create_app(TestConfig)
+        # Establish a context for db
+        self.app_context = self.app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        # Reset context
+        self.app_context.pop()
 
     def test_password_hashing(self):
         u = User(username = 'susan')

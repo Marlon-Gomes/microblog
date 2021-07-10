@@ -1,18 +1,18 @@
 # Imports from standard libraries
 import json, requests
 # Imports from downloaded libraries
+from flask import current_app
 from flask_babel import _
 # Imports from local libraries
-from app import app
 
 def translate(text, source_language, dest_language):
     # Verify system is configured and authentication key is stored
-    if 'MS_TRANSLATOR_KEY' not in app.config or \
-        not app.config['MS_TRANSLATOR_KEY']:
+    if 'MS_TRANSLATOR_KEY' not in current_app.config or \
+        not current_app.config['MS_TRANSLATOR_KEY']:
         return _('Error: the translation service is not configured.')
     # Authentication
     auth = {
-        'Ocp-Apim-Subscription-Key': app.config['MS_TRANSLATOR_KEY'],
+        'Ocp-Apim-Subscription-Key': current_app.config['MS_TRANSLATOR_KEY'],
         'Ocp-Apim-Subscription-Region': 'eastus2'
     }
     # Requests.post() returns a response object in .json format
