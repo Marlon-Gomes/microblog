@@ -1,0 +1,26 @@
+name: microblog
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.8
+  - flask[version='>=1.1.2']
+  - flask-moment[version='>=0.11.0']
+  - python-dotenv[version='>=0.19.2']
+  - werkzeug[version='>=2.0.3']
+  - flask-bootstrap[version='>=3.3.7.1']
+  - email-validator[version='>=1.1.3']
+  - pyjwt[version='>=2.3.0']
+  - requests[version='>=2.27.1']
+  - flask-login[version='>=0.5.0']
+  - flask-babel[version='>=2.0.0']
+  - flask-mail[version='>=0.9.1']
+  - alembic[version='>=1.4.3']
+  - flask-migrate[version='>=2.5.3']
+  - wtforms[version='>=2.3.3']
+  - click[version='>=8.0.4']
+  - langdetect[version='>=1.0.9']
+  - flask-sqlalchemy[version='>=2.4.4']
+  - flask-wtf[version='>=0.14.3']
+  - sqlalchemy[version='>=1.3.22']
