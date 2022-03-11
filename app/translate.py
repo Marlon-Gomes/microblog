@@ -13,7 +13,7 @@ def translate(text, source_language, dest_language):
     # Authentication
     auth = {
         'Ocp-Apim-Subscription-Key': current_app.config['MS_TRANSLATOR_KEY'],
-        'Ocp-Apim-Subscription-Region': 'eastus2'
+        'Ocp-Apim-Subscription-Region': 'eastus'
     }
     # Requests.post() returns a response object in .json format
     response = requests.post(
