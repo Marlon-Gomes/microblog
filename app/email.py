@@ -1,7 +1,7 @@
 # Imports from standard libraries
 from threading import Thread
 # Imports from downloaded libraries
-from flask import render_template, current_app
+from flask import current_app
 from flask_mail import Message
 # Imports from local modules
 from app import mail

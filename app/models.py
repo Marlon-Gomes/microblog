@@ -7,8 +7,8 @@ Created on Sun Jan 10 20:23:15 2021
 """
 # Imports from standard libraries
 from datetime import datetime
-from time import time
 from hashlib import md5
+from time import time
 # Imports from downloaded libraries
 import jwt
 from flask import current_app

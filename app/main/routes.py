@@ -9,18 +9,17 @@ Created on Sun Jan 10 17:06:22 2021
 from datetime import datetime
 # Imports from downloaded libraries
 from flask import render_template, flash, redirect, url_for, request, g, \
-    jsonify
-from flask_login import current_user, login_user, logout_user, login_required
+    jsonify, current_app
+from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from werkzeug.urls import url_parse
 from guess_language import guess_language
 # Imports from local modules
 from app import db
-from app.main import bp
-from app.main.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, \
-    PostForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm
 from app.models import User, Post
 from app.translate import translate
+from app.main import bp
 
 @bp.before_app_request
 def before_request():
@@ -32,7 +31,7 @@ def before_request():
         db.session.commit()
     g.locale = str(get_locale())
 
-# The decorators '@app.route' associate the URLs '/' and '/index' to the
+# The decorators '@bp.route' associate the URLs '/' and '/index' to the
 # function index. The decorator @login_required redirects users to the login
 # page if they try to access a protected page.
 @bp.route('/', methods=['GET','POST'])
@@ -53,14 +52,14 @@ def index():
         # We redirect the user to index to reset the last request. If this is
         # not done, the user will be prompted to confirm form resubmission by
         # the web browser upon hitting the refresh button.
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     page = request.args.get('page', 1, type = int)
     posts = current_user.followed_posts().paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('index', page = posts.next_num) \
+    next_url = url_for('main.index', page = posts.next_num) \
         if posts.has_next else None
-    prev_url = url_for('index', page = posts.prev_num) \
+    prev_url = url_for('main.index', page = posts.prev_num) \
         if posts.has_prev else None
     return render_template('index.html', title = _('Home'), form = form,
         posts = posts.items, next_url = next_url, prev_url = prev_url)
@@ -73,10 +72,14 @@ def user(username):
     page = request.args.get('page', 1, type = int)
     posts = user.posts.order_by(Post.timestamp.desc()).paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('user', username = user.username, page = posts.next_num)\
-        if posts.has_next else None
-    prev_url = url_for('user', username = user.username, page = posts.prev_num)\
-        if posts.has_prev else None
+    next_url = url_for(
+        'main.user',
+        username = user.username,
+        page = posts.next_num) if posts.has_next else None
+    prev_url = url_for(
+        'main.user',
+        username = user.username,
+        page = posts.prev_num) if posts.has_prev else None
     form = EmptyForm()
     return render_template('user.html', user = user, posts = posts.items,
         next_url = next_url, prev_url = prev_url, form = form)
@@ -90,7 +93,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_profile'))
+        return redirect(url_for('main.edit_profile'))
     elif request.method == 'GET':
         # if initial request, populate fields with existing data
         form.username.data = current_user.username
@@ -106,17 +109,17 @@ def follow(username):
     if form.validate_on_submit():
         user = User.query.filter_by(username = username).first()
         if user is None:
-            flash(_('User %(username)s not found.', username = username))
-            return redirect(url_for('index'))
+            flash(_('User {} not found.'.format(username)))
+            return redirect(url_for('main.index'))
         if user == current_user:
             flash(_("You cannot follow yourself!"))
-            return redirect(url_for('user', username = username))
+            return redirect(url_for('main.user', username = username))
         current_user.follow(user)
         db.session.commit()
-        flash(_('You are following %(username)s.', username = username))
-        return redirect(url_for('user', username = username))
+        flash(_('You are following {}'.format(username)))
+        return redirect(url_for('main.user', username = username))
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
 @bp.route('/unfollow/<username>', methods=['POST'])
 @login_required
@@ -126,17 +129,16 @@ def unfollow(username):
         user = User.query.filter_by(username = username).first()
         if user is None:
             flash('User {} not found'.format(username))
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
         if user == current_user:
             flash(_('You cannot unfollow yourself!'))
-            return redirect(url_for('user', username = username))
+            return redirect(url_for('main.user', username = username))
         current_user.unfollow(user)
         db.session.commit()
-        flash(_('You are no longer following %(username)s',
-            username = username))
-        return redirect(url_for('user', username = username))
+        flash(_('You are no longer following {}'.format(username)))
+        return redirect(url_for('main.user', username = username))
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
 @bp.route('/explore')
 @login_required
@@ -144,9 +146,9 @@ def explore():
     page = request.args.get('page', 1, type = int)
     posts = Post.query.order_by(Post.timestamp.desc()).paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('explore', page = posts.next_num) \
+    next_url = url_for('main.explore', page = posts.next_num) \
         if posts.has_next else None
-    prev_url = url_for('explore', page = posts.prev_num) \
+    prev_url = url_for('main.explore', page = posts.prev_num) \
         if posts.has_prev else None
     return render_template('index.html', title = _('Explore'),
         posts = posts.items, next_url = next_url, prev_url = prev_url)
